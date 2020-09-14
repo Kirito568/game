@@ -35,6 +35,9 @@ const MEMBER = {};
 // チャット延べ参加者数
 let MEMBER_COUNT = 1;
 
+var JOIN_MEMBER = 0;
+var last_call = "";
+var turns=0;
 //-----------------------------------------------
 // HTTPサーバ (express)
 //-----------------------------------------------
@@ -71,8 +74,10 @@ io.on("connection", (socket)=>{
     MEMBER[socket.id] = {token: token, name:null, count:MEMBER_COUNT};
     MEMBER_COUNT++;
 
-    // 本人にトークンを送付
+      // 本人にトークンを送付
     io.to(socket.id).emit("token", {token:token});
+
+    
   })();
 
   /**
@@ -86,13 +91,18 @@ io.on("connection", (socket)=>{
       // 入室OK + 現在の入室者一覧を通知
       const memberlist = getMemberList();
       io.to(socket.id).emit("join-result", {status: true, list: memberlist});
-
-      // メンバー一覧に追加
-      MEMBER[socket.id].name = data.name;
-
       // 入室通知
       io.to(socket.id).emit("member-join", data);
       socket.broadcast.emit("member-join", {name:data.name, token:MEMBER[socket.id].count});
+      // メンバー一覧に追加
+      MEMBER[socket.id].name = data.name;
+      JOIN_MEMBER++;
+      if (JOIN_MEMBER >= 2){
+        //人が来たらチャット画面に移行
+        io.emit("battle");
+      }
+      
+      
     }
     //--------------------------
     // トークンが誤っていた場合
@@ -111,11 +121,29 @@ io.on("connection", (socket)=>{
     // トークンが正しければ
     //--------------------------
     if( authToken(socket.id, data.token) ){
+      //最初の文字を判定
+      var first_call = data.text.slice(0,1);
+      //一致
+      if(turns == 0 || first_call == last_call){
+
+      }
+      //不一致
+      else{
+        alert("最初と最後が一致しません。"+ last_call +"から始めてください。")
+      }
+
+
+      //最後の文字を抽出
+      last_call = data.text.slice(-1);
+      console.log(last_call);
+
+      
       // 本人に通知
       io.to(socket.id).emit("member-post", data);
-
+      
       // 本人以外に通知
       socket.broadcast.emit("member-post", {text:data.text, token:MEMBER[socket.id].count});
+      turns++;
     }
 
     // トークンが誤っていた場合は無視する

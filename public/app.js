@@ -67,28 +67,19 @@ socket.on("join-result", (data)=>{
   if( data.status ){
     // 入室フラグを立てる
     IAM.is_join = true;
-    if(Object.keys(MEMBER).length < 2){
-      $("#inputmyname").style.display = "none";   // 名前入力を非表示
-      $("#chat").style.display = "none";         // チャットを非表示
-      $("#waiting").style.display="block";        //対戦待ち表示
-      $("#msg").focus();
-    }
-    else{
-    // すでにログイン中のメンバー一覧を反映
-      for(let i=0; i<data.list.length; i++){
-        const cur = data.list[i];
-        if( ! (cur.token in MEMBER) ){
-          console.log(Object.keys(MEMBER).length)
-          addMemberList(cur.token, cur.name);
-        
-        }
+    for(let i=0; i<data.list.length; i++){
+      const cur = data.list[i];
+      if( ! (cur.token in MEMBER) ){
+        console.log(Object.keys(MEMBER).length)
+        addMemberList(cur.token, cur.name);
+      
       }
-
-    // 表示を切り替える
-      $("#inputmyname").style.display = "none";   // 名前入力を非表示
-      $("#chat").style.display = "block";         // チャットを表示
-      $("#msg").focus();
     }
+    $("#inputmyname").style.display = "none";   // 名前入力を非表示
+    $("#chat").style.display = "none";         // チャットを非表示
+    $("#waiting").style.display="block";        //対戦待ち表示
+    $("#msg").focus();
+    
   }
   //------------------------
   // できなかった
@@ -100,6 +91,16 @@ socket.on("join-result", (data)=>{
   // ボタンを有効に戻す
   $("#frm-myname button").removeAttribute("disabled");
 });
+
+
+socket.on("battle", ()=>{
+  
+    $("#waiting").style.display = "none";
+    $("#chat").style.display = "block";         // チャットを表示
+    $("#msg").focus();
+  console.log("battle");
+});
+
 
 //-------------------------------------
 // STEP3. チャット開始
