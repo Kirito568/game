@@ -36,8 +36,7 @@ const MEMBER = {};
 let MEMBER_COUNT = 1;
 
 var JOIN_MEMBER = 0;
-var last_call = "";
-var turns=0;
+
 //-----------------------------------------------
 // HTTPサーバ (express)
 //-----------------------------------------------
@@ -121,21 +120,7 @@ io.on("connection", (socket)=>{
     // トークンが正しければ
     //--------------------------
     if( authToken(socket.id, data.token) ){
-      //最初の文字を判定
-      var first_call = data.text.slice(0,1);
-      //一致
-      if(turns == 0 || first_call == last_call){
-
-      }
-      //不一致
-      else{
-        alert("最初と最後が一致しません。"+ last_call +"から始めてください。")
-      }
-
-
-      //最後の文字を抽出
-      last_call = data.text.slice(-1);
-      console.log(last_call);
+      
 
       
       // 本人に通知
@@ -143,7 +128,7 @@ io.on("connection", (socket)=>{
       
       // 本人以外に通知
       socket.broadcast.emit("member-post", {text:data.text, token:MEMBER[socket.id].count});
-      turns++;
+      
     }
 
     // トークンが誤っていた場合は無視する

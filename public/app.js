@@ -10,7 +10,8 @@ const MEMBER ={0:"master"};
 
 // Socket.ioのクライアント用オブジェクトをセット
 const socket = io();
-
+var last_call = "";
+var turns=0;
 
 //-------------------------------------
 // STEP1. Socket.ioサーバへ接続
@@ -98,7 +99,7 @@ socket.on("battle", ()=>{
     $("#waiting").style.display = "none";
     $("#chat").style.display = "block";         // チャットを表示
     $("#msg").focus();
-  console.log("battle");
+  
 });
 
 
@@ -185,6 +186,24 @@ socket.on("member-post", (msg)=>{
     const is_me = (msg.token === IAM.token);
     addMessage(msg, is_me);
   }
+  //最初の文字を判定
+  var first_call = msg.text.slice(0,1);
+  //一致
+  if(turns == 0 || first_call == last_call){
+    //最後の文字を抽出
+    last_call = msg.text.slice(-1);
+    turns++;
+    console.log(last_call);
+    console.log(turns);
+  }
+  //不一致
+  else{
+    
+    alert("最初と最後が一致しません。「" + last_call + "」から始めてください。")
+  }
+
+
+  
 });
 
 
